@@ -31,23 +31,11 @@ export default function RootLayout({
               Prompt Hub
             </a>
             <nav className="flex items-center gap-3 text-sm font-medium text-gray-600">
-              <a href="/prompts" className="hover:text-gray-900">
-                Prompts
-              </a>
               <a href="/settings/providers" className="hover:text-gray-900">
                 Providers
               </a>
-              <a href="/settings/models" className="hover:text-gray-900">
-                Models
-              </a>
               <a href="/import" className="hover:text-gray-900">
                 Import
-              </a>
-              <a
-                href="/prompts/create"
-                className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 transition-colors"
-              >
-                New Prompt
               </a>
             </nav>
           </div>
