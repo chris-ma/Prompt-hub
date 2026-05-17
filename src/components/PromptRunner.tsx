@@ -29,6 +29,13 @@ export default function PromptRunner({ prompt }: { prompt: Prompt }) {
   const [outputs, setOutputs] = useState<RunOutput[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedModel, setCopiedModel] = useState<string | null>(null);
+
+  async function handleCopy(model: string, content: string) {
+    await navigator.clipboard.writeText(content);
+    setCopiedModel(model);
+    setTimeout(() => setCopiedModel(null), 2000);
+  }
 
   function toggleModel(model: PromptModelHint) {
     setSelectedModels((prev) =>
@@ -132,15 +139,25 @@ export default function PromptRunner({ prompt }: { prompt: Prompt }) {
                 key={output.model}
                 className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     {MODEL_LABELS[output.model]}
                   </span>
-                  {output.usage && (
-                    <span className="text-xs text-gray-400">
-                      {output.usage.prompt_tokens + output.usage.completion_tokens} tokens
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {output.usage && (
+                      <span className="text-xs text-gray-400">
+                        {output.usage.prompt_tokens + output.usage.completion_tokens} tokens
+                      </span>
+                    )}
+                    {!output.error && (
+                      <button
+                        onClick={() => handleCopy(output.model, output.content)}
+                        className="rounded px-2 py-0.5 text-xs font-medium transition-colors border border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700 active:bg-gray-100"
+                      >
+                        {copiedModel === output.model ? "Copied!" : "Copy"}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {output.error ? (
                   <p className="text-sm text-red-600">{output.error}</p>
