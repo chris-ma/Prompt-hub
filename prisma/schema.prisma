@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Prompt {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  description   String?
+  template      String   @db.Text
+  tags          String[] @default([])
+  defaultModels String[] @default([])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  runs          Run[]
+}
+
+model Run {
+  id        String   @id @default(cuid())
+  promptId  String
+  prompt    Prompt   @relation(fields: [promptId], references: [id])
+  input     String   @db.Text
+  outputs   Json?
+  createdAt DateTime @default(now())
+
+  @@index([promptId])
+  @@index([createdAt])
+}
