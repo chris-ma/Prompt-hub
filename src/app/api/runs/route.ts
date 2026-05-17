@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getPromptById, saveRun } from "@/lib/db";
-import { callOpenRouter } from "@/lib/openrouter";
+import { getPromptById, saveRun, prisma } from "@/lib/db";
+import { callModel } from "@/lib/llm";
 import { logger } from "@/lib/logger";
-import type { RunInput, PromptModelHint } from "@/types/types";
+import type { RunInput } from "@/types/types";
 
 function resolveTemplate(template: string, input: string): string {
   return template.replace(/\{\{input\}\}/g, input);
@@ -11,9 +11,9 @@ function resolveTemplate(template: string, input: string): string {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as RunInput;
-    const { promptId, input, models } = body;
+    const { promptId, input, models: modelIds } = body;
 
-    if (!promptId || !input || !models || models.length === 0) {
+    if (!promptId || !input || !modelIds || modelIds.length === 0) {
       return NextResponse.json(
         { error: "promptId, input, and at least one model are required" },
         { status: 400 }
@@ -25,11 +25,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
     }
 
+    const modelRecords = await prisma.model.findMany({
+      where: { modelId: { in: modelIds } },
+      include: { provider: true },
+    });
+
+    const modelMap = new Map(modelRecords.map((m) => [m.modelId, m]));
     const resolvedPrompt = resolveTemplate(prompt.template, input);
-    logger.info("Starting parallel LLM calls", { promptId, modelCount: models.length });
+    logger.info("Starting parallel LLM calls", { promptId, modelCount: modelIds.length });
 
     const outputs = await Promise.all(
-      models.map((model: PromptModelHint) => callOpenRouter(model, resolvedPrompt))
+      modelIds.map((modelId) => {
+        const record = modelMap.get(modelId);
+        return callModel(
+          { modelId, provider: record?.provider ?? null },
+          resolvedPrompt
+        );
+      })
     );
 
     const run = await saveRun({ promptId, input, outputs });

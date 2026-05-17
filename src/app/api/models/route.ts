@@ -15,11 +15,11 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { modelId, label } = body as { modelId?: string; label?: string };
+    const { modelId, label, providerId } = body as { modelId?: string; label?: string; providerId?: string };
     if (!modelId?.trim() || !label?.trim()) {
       return NextResponse.json({ error: "modelId and label are required" }, { status: 400 });
     }
-    const model = await addModel(modelId.trim(), label.trim());
+    const model = await addModel(modelId.trim(), label.trim(), providerId?.trim() || undefined);
     return NextResponse.json({ model }, { status: 201 });
   } catch (err) {
     logger.error("POST /api/models failed", { error: String(err) });

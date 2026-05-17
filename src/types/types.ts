@@ -1,9 +1,19 @@
 export type PromptModelHint = string;
 
+export interface Provider {
+  id: string;
+  name: string;
+  slug: string;
+  baseUrl?: string | null;
+  createdAt: string;
+}
+
 export interface Model {
   id: string;
   modelId: string;
   label: string;
+  providerId: string | null;
+  provider?: Provider;
   createdAt: string;
 }
 

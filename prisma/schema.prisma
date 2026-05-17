@@ -33,9 +33,21 @@ model Run {
   @@index([createdAt])
 }
 
-model Model {
+model Provider {
   id        String   @id @default(cuid())
-  modelId   String   @unique
-  label     String
+  name      String
+  slug      String   @unique
+  apiKey    String   @db.Text
+  baseUrl   String?
   createdAt DateTime @default(now())
+  models    Model[]
+}
+
+model Model {
+  id         String    @id @default(cuid())
+  modelId    String    @unique
+  label      String
+  providerId String?
+  provider   Provider? @relation(fields: [providerId], references: [id])
+  createdAt  DateTime  @default(now())
 }

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { logger } from "@/lib/logger";
-import type { Prompt, Run, RunOutput, Model } from "@/types/types";
+import type { Prompt, Run, RunOutput, Model, Provider } from "@/types/types";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
@@ -173,23 +173,110 @@ export async function getRunsForPrompt(promptId: string): Promise<Run[]> {
 
 // ---- Model helpers ----
 
-function mapModel(m: { id: string; modelId: string; label: string; createdAt: Date }): Model {
-  return { id: m.id, modelId: m.modelId, label: m.label, createdAt: m.createdAt.toISOString() };
+type DbModel = {
+  id: string;
+  modelId: string;
+  label: string;
+  providerId: string | null;
+  provider?: {
+    id: string;
+    name: string;
+    slug: string;
+    baseUrl: string | null;
+    createdAt: Date;
+  } | null;
+  createdAt: Date;
+};
+
+function mapModel(m: DbModel): Model {
+  return {
+    id: m.id,
+    modelId: m.modelId,
+    label: m.label,
+    providerId: m.providerId,
+    provider: m.provider
+      ? {
+          id: m.provider.id,
+          name: m.provider.name,
+          slug: m.provider.slug,
+          baseUrl: m.provider.baseUrl,
+          createdAt: m.provider.createdAt.toISOString(),
+        }
+      : undefined,
+    createdAt: m.createdAt.toISOString(),
+  };
 }
 
 export async function getModels(): Promise<Model[]> {
   logger.debug("getModels");
-  const models = await prisma.model.findMany({ orderBy: { createdAt: "asc" } });
+  const models = await prisma.model.findMany({
+    orderBy: { createdAt: "asc" },
+    include: { provider: true },
+  });
   return models.map(mapModel);
 }
 
-export async function addModel(modelId: string, label: string): Promise<Model> {
-  logger.info("addModel", { modelId, label });
-  const model = await prisma.model.create({ data: { modelId, label } });
+export async function addModel(modelId: string, label: string, providerId?: string): Promise<Model> {
+  logger.info("addModel", { modelId, label, providerId });
+  const model = await prisma.model.create({
+    data: { modelId, label, ...(providerId ? { providerId } : {}) },
+    include: { provider: true },
+  });
   return mapModel(model);
 }
 
 export async function deleteModel(id: string): Promise<void> {
   logger.info("deleteModel", { id });
   await prisma.model.delete({ where: { id } });
+}
+
+// ---- Provider helpers ----
+
+type DbProvider = {
+  id: string;
+  name: string;
+  slug: string;
+  baseUrl: string | null;
+  createdAt: Date;
+};
+
+function mapProvider(p: DbProvider): Provider {
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    baseUrl: p.baseUrl,
+    createdAt: p.createdAt.toISOString(),
+  };
+}
+
+export async function getProviders(): Promise<Provider[]> {
+  logger.debug("getProviders");
+  const providers = await prisma.provider.findMany({ orderBy: { createdAt: "asc" } });
+  return providers.map(mapProvider);
+}
+
+export interface CreateProviderData {
+  name: string;
+  slug: string;
+  apiKey: string;
+  baseUrl?: string;
+}
+
+export async function addProvider(data: CreateProviderData): Promise<Provider> {
+  logger.info("addProvider", { slug: data.slug });
+  const provider = await prisma.provider.create({
+    data: {
+      name: data.name,
+      slug: data.slug,
+      apiKey: data.apiKey,
+      baseUrl: data.baseUrl ?? null,
+    },
+  });
+  return mapProvider(provider);
+}
+
+export async function deleteProvider(id: string): Promise<void> {
+  logger.info("deleteProvider", { id });
+  await prisma.provider.delete({ where: { id } });
 }

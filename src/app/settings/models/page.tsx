@@ -1,24 +1,33 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { Model } from "@/types/types";
+import type { Model, Provider } from "@/types/types";
 
 export default function ModelsSettingsPage() {
   const [models, setModels] = useState<Model[]>([]);
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [modelId, setModelId] = useState("");
   const [label, setLabel] = useState("");
+  const [providerId, setProviderId] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchModels = useCallback(async () => {
-    const res = await fetch("/api/models");
-    const data = await res.json();
-    setModels(data.models ?? []);
+  const fetchData = useCallback(async () => {
+    const [modelsRes, providersRes] = await Promise.all([
+      fetch("/api/models"),
+      fetch("/api/providers"),
+    ]);
+    const [modelsData, providersData] = await Promise.all([
+      modelsRes.json(),
+      providersRes.json(),
+    ]);
+    setModels(modelsData.models ?? []);
+    setProviders(providersData.providers ?? []);
     setIsLoading(false);
   }, []);
 
-  useEffect(() => { fetchModels(); }, [fetchModels]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +38,11 @@ export default function ModelsSettingsPage() {
       const res = await fetch("/api/models", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ modelId: modelId.trim(), label: label.trim() }),
+        body: JSON.stringify({
+          modelId: modelId.trim(),
+          label: label.trim(),
+          providerId: providerId || undefined,
+        }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -37,7 +50,8 @@ export default function ModelsSettingsPage() {
       }
       setModelId("");
       setLabel("");
-      await fetchModels();
+      setProviderId("");
+      await fetchData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error adding model");
     } finally {
@@ -59,29 +73,39 @@ export default function ModelsSettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">LLM Models</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Manage which OpenRouter models appear in the prompt runner. Use any model ID from{" "}
-          <span className="font-mono text-xs bg-gray-100 px-1 rounded">openrouter.ai/models</span>.
+          Configure models to use in the prompt runner. Link each to a provider for direct API access, or leave unlinked to use OpenRouter.
         </p>
       </div>
 
-      {/* Add form */}
       <form onSubmit={handleAdd} className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-gray-700">Add a model</h2>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <input
-            type="text"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder="Display name (e.g. GPT-4o)"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          <input
-            type="text"
-            value={modelId}
-            onChange={(e) => setModelId(e.target.value)}
-            placeholder="Model ID (e.g. openai/gpt-4o)"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              type="text"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="Display name (e.g. GPT-4o)"
+              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <input
+              type="text"
+              value={modelId}
+              onChange={(e) => setModelId(e.target.value)}
+              placeholder="Model ID (e.g. gpt-4o)"
+              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <select
+            value={providerId}
+            onChange={(e) => setProviderId(e.target.value)}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="">No provider (use OpenRouter fallback)</option>
+            {providers.map((p) => (
+              <option key={p.id} value={p.id}>{p.name} ({p.slug})</option>
+            ))}
+          </select>
         </div>
         {error && <p className="text-xs text-red-600">{error}</p>}
         <button
@@ -93,7 +117,6 @@ export default function ModelsSettingsPage() {
         </button>
       </form>
 
-      {/* Model list */}
       <div className="flex flex-col gap-2">
         <h2 className="text-sm font-semibold text-gray-700">Configured models ({models.length})</h2>
         {isLoading ? (
@@ -105,7 +128,14 @@ export default function ModelsSettingsPage() {
             {models.map((model) => (
               <div key={model.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-medium text-gray-900 truncate">{model.label}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-900 truncate">{model.label}</span>
+                    {model.provider && (
+                      <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                        {model.provider.slug}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-xs font-mono text-gray-400 truncate">{model.modelId}</span>
                 </div>
                 <button

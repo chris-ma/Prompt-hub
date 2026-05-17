@@ -34,8 +34,14 @@ export default function RootLayout({
               <a href="/prompts" className="hover:text-gray-900">
                 Prompts
               </a>
+              <a href="/settings/providers" className="hover:text-gray-900">
+                Providers
+              </a>
               <a href="/settings/models" className="hover:text-gray-900">
                 Models
+              </a>
+              <a href="/import" className="hover:text-gray-900">
+                Import
               </a>
               <a
                 href="/prompts/create"
