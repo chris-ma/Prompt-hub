@@ -30,9 +30,12 @@ export default function RootLayout({
             <a href="/" className="text-xl font-bold text-gray-900">
               Prompt Hub
             </a>
-            <nav className="flex items-center gap-4 text-sm font-medium text-gray-600">
+            <nav className="flex items-center gap-3 text-sm font-medium text-gray-600">
               <a href="/prompts" className="hover:text-gray-900">
                 Prompts
+              </a>
+              <a href="/settings/models" className="hover:text-gray-900">
+                Models
               </a>
               <a
                 href="/prompts/create"

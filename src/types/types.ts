@@ -1,9 +1,11 @@
-export type PromptModelHint =
-  | "openai/gpt-4o"
-  | "anthropic/claude-3-opus"
-  | "google/gemini-pro"
-  | "deepseek/deepseek-chat"
-  | "mistral/mistral-large";
+export type PromptModelHint = string;
+
+export interface Model {
+  id: string;
+  modelId: string;
+  label: string;
+  createdAt: string;
+}
 
 export interface Prompt {
   id: string;
@@ -12,7 +14,7 @@ export interface Prompt {
   description: string;
   template: string;
   tags: string[];
-  defaultModels: PromptModelHint[];
+  defaultModels: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -20,11 +22,11 @@ export interface Prompt {
 export interface RunInput {
   promptId: string;
   input: string;
-  models: PromptModelHint[];
+  models: string[];
 }
 
 export interface RunOutput {
-  model: PromptModelHint;
+  model: string;
   content: string;
   usage?: {
     prompt_tokens: number;

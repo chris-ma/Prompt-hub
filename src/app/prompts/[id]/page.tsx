@@ -3,7 +3,8 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import PromptRunner from "@/components/PromptRunner";
-import { getPromptById } from "@/lib/db";
+import RunHistory from "@/components/RunHistory";
+import { getPromptById, getRunsForPrompt, getModels } from "@/lib/db";
 
 interface PromptDetailPageProps {
   params: Promise<{ id: string }>;
@@ -11,7 +12,11 @@ interface PromptDetailPageProps {
 
 export default async function PromptDetailPage({ params }: PromptDetailPageProps) {
   const { id } = await params;
-  const prompt = await getPromptById(id);
+  const [prompt, runs, models] = await Promise.all([
+    getPromptById(id),
+    getRunsForPrompt(id),
+    getModels(),
+  ]);
 
   if (!prompt) {
     notFound();
@@ -27,10 +32,7 @@ export default async function PromptDetailPage({ params }: PromptDetailPageProps
               <p className="text-gray-500">{prompt.description}</p>
             )}
           </div>
-          <Link
-            href="/prompts"
-            className="shrink-0 text-sm text-gray-400 hover:text-gray-600"
-          >
+          <Link href="/prompts" className="shrink-0 text-sm text-gray-400 hover:text-gray-600">
             ← Back
           </Link>
         </div>
@@ -50,9 +52,7 @@ export default async function PromptDetailPage({ params }: PromptDetailPageProps
       </div>
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400">
-          Template
-        </h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Template</h2>
         <pre className="overflow-x-auto rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 whitespace-pre-wrap font-mono">
           {prompt.template}
         </pre>
@@ -60,7 +60,14 @@ export default async function PromptDetailPage({ params }: PromptDetailPageProps
 
       <div className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold text-gray-900">Run this prompt</h2>
-        <PromptRunner prompt={prompt} />
+        <PromptRunner prompt={prompt} models={models} />
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <h2 className="text-lg font-semibold text-gray-900">
+          Run history{runs.length > 0 ? ` (${runs.length})` : ""}
+        </h2>
+        <RunHistory runs={runs} />
       </div>
     </div>
   );

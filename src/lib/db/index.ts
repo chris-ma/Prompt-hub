@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { logger } from "@/lib/logger";
-import type { Prompt, Run, RunOutput, PromptModelHint } from "@/types/types";
+import type { Prompt, Run, RunOutput, Model } from "@/types/types";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
@@ -34,7 +34,7 @@ function mapPrompt(p: DbPrompt): Prompt {
     description: p.description ?? "",
     template: p.template,
     tags: p.tags,
-    defaultModels: p.defaultModels as PromptModelHint[],
+    defaultModels: p.defaultModels as string[],
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
   };
@@ -90,7 +90,7 @@ export interface CreatePromptData {
   description?: string;
   template: string;
   tags?: string[];
-  defaultModels?: PromptModelHint[];
+  defaultModels?: string[];
   slug?: string;
 }
 
@@ -119,7 +119,7 @@ export interface UpdatePromptData {
   description?: string;
   template?: string;
   tags?: string[];
-  defaultModels?: PromptModelHint[];
+  defaultModels?: string[];
 }
 
 export async function updatePrompt(id: string, data: UpdatePromptData): Promise<Prompt> {
@@ -169,4 +169,27 @@ export async function getRunsForPrompt(promptId: string): Promise<Run[]> {
     take: 20,
   });
   return runs.map(mapRun);
+}
+
+// ---- Model helpers ----
+
+function mapModel(m: { id: string; modelId: string; label: string; createdAt: Date }): Model {
+  return { id: m.id, modelId: m.modelId, label: m.label, createdAt: m.createdAt.toISOString() };
+}
+
+export async function getModels(): Promise<Model[]> {
+  logger.debug("getModels");
+  const models = await prisma.model.findMany({ orderBy: { createdAt: "asc" } });
+  return models.map(mapModel);
+}
+
+export async function addModel(modelId: string, label: string): Promise<Model> {
+  logger.info("addModel", { modelId, label });
+  const model = await prisma.model.create({ data: { modelId, label } });
+  return mapModel(model);
+}
+
+export async function deleteModel(id: string): Promise<void> {
+  logger.info("deleteModel", { id });
+  await prisma.model.delete({ where: { id } });
 }

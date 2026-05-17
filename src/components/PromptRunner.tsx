@@ -1,31 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import type { Prompt, PromptModelHint, RunOutput } from "@/types/types";
+import type { Prompt, Model, RunOutput } from "@/types/types";
 
-const ALL_MODELS: PromptModelHint[] = [
-  "openai/gpt-4o",
-  "anthropic/claude-3-opus",
-  "google/gemini-pro",
-  "deepseek/deepseek-chat",
-  "mistral/mistral-large",
-];
+interface PromptRunnerProps {
+  prompt: Prompt;
+  models: Model[];
+}
 
-const MODEL_LABELS: Record<PromptModelHint, string> = {
-  "openai/gpt-4o": "GPT-4o",
-  "anthropic/claude-3-opus": "Claude 3 Opus",
-  "google/gemini-pro": "Gemini Pro",
-  "deepseek/deepseek-chat": "DeepSeek Chat",
-  "mistral/mistral-large": "Mistral Large",
-};
-
-export default function PromptRunner({ prompt }: { prompt: Prompt }) {
-  const [input, setInput] = useState("");
-  const [selectedModels, setSelectedModels] = useState<PromptModelHint[]>(
+export default function PromptRunner({ prompt, models }: PromptRunnerProps) {
+  const defaultSelected =
     prompt.defaultModels.length > 0
-      ? (prompt.defaultModels as PromptModelHint[])
-      : ["openai/gpt-4o"]
-  );
+      ? prompt.defaultModels
+      : models.slice(0, 1).map((m) => m.modelId);
+
+  const [input, setInput] = useState("");
+  const [selectedModels, setSelectedModels] = useState<string[]>(defaultSelected);
   const [outputs, setOutputs] = useState<RunOutput[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,9 +27,9 @@ export default function PromptRunner({ prompt }: { prompt: Prompt }) {
     setTimeout(() => setCopiedModel(null), 2000);
   }
 
-  function toggleModel(model: PromptModelHint) {
+  function toggleModel(modelId: string) {
     setSelectedModels((prev) =>
-      prev.includes(model) ? prev.filter((m) => m !== model) : [...prev, model]
+      prev.includes(modelId) ? prev.filter((m) => m !== modelId) : [...prev, modelId]
     );
   }
 
@@ -70,6 +60,9 @@ export default function PromptRunner({ prompt }: { prompt: Prompt }) {
     }
   }
 
+  const labelFor = (modelId: string) =>
+    models.find((m) => m.modelId === modelId)?.label ?? modelId;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -88,26 +81,35 @@ export default function PromptRunner({ prompt }: { prompt: Prompt }) {
 
       <div className="flex flex-col gap-2">
         <span className="text-sm font-medium text-gray-700">Select models</span>
-        <div className="flex flex-wrap gap-2">
-          {ALL_MODELS.map((model) => (
-            <label
-              key={model}
-              className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                selectedModels.includes(model)
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-              }`}
-            >
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={selectedModels.includes(model)}
-                onChange={() => toggleModel(model)}
-              />
-              {MODEL_LABELS[model]}
-            </label>
-          ))}
-        </div>
+        {models.length === 0 ? (
+          <p className="text-sm text-gray-400">
+            No models configured.{" "}
+            <a href="/settings/models" className="text-blue-600 underline">
+              Add some in Settings.
+            </a>
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {models.map((model) => (
+              <label
+                key={model.id}
+                className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                  selectedModels.includes(model.modelId)
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={selectedModels.includes(model.modelId)}
+                  onChange={() => toggleModel(model.modelId)}
+                />
+                {model.label}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
       <button
@@ -141,7 +143,7 @@ export default function PromptRunner({ prompt }: { prompt: Prompt }) {
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    {MODEL_LABELS[output.model]}
+                    {labelFor(output.model)}
                   </span>
                   <div className="flex items-center gap-2">
                     {output.usage && (

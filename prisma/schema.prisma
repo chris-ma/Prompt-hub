@@ -32,3 +32,10 @@ model Run {
   @@index([promptId])
   @@index([createdAt])
 }
+
+model Model {
+  id        String   @id @default(cuid())
+  modelId   String   @unique
+  label     String
+  createdAt DateTime @default(now())
+}
