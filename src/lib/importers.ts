@@ -3,6 +3,7 @@ export interface ParsedConversation {
   description: string;
   tags: string[];
   turns: Array<{ input: string; output: string; model: string }>;
+  template?: string;
 }
 
 // ChatGPT export format: conversations.json array of objects with "mapping" tree
@@ -122,4 +123,79 @@ export function parseTextFile(content: string, filename: string): ParsedConversa
     tags: ["imported", "note"],
     turns: [],
   };
+}
+
+// ChatGPT memory.json: array of { memory: string, ... }
+// Creates a single reference prompt listing all stored memories
+export function parseMemory(raw: unknown[]): ParsedConversation | null {
+  const memories: string[] = [];
+  for (const item of raw) {
+    if (item && typeof item === "object") {
+      const m = (item as Record<string, unknown>)["memory"];
+      if (typeof m === "string" && m.trim()) {
+        memories.push(m.trim());
+      }
+    }
+  }
+  if (memories.length === 0) return null;
+  return {
+    title: "ChatGPT Memories",
+    description: "Stored memory facts from ChatGPT",
+    tags: ["imported", "chatgpt", "memory"],
+    turns: [],
+    template: memories.map((m, i) => `${i + 1}. ${m}`).join("\n"),
+  };
+}
+
+// Google Takeout Gemini format
+// Array of objects with title + conversationState.conversation.turns[]
+export function parseGemini(raw: unknown[]): ParsedConversation[] {
+  const results: ParsedConversation[] = [];
+
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const conv = item as Record<string, unknown>;
+    const title = typeof conv["title"] === "string" ? conv["title"] : "Gemini Chat";
+
+    const state = conv["conversationState"] as Record<string, unknown> | undefined;
+    const conversation = state?.["conversation"] as Record<string, unknown> | undefined;
+    const rawTurns = conversation?.["turns"] as unknown[] | undefined;
+
+    if (!rawTurns) continue;
+
+    const turns: ParsedConversation["turns"] = [];
+    for (const t of rawTurns) {
+      if (!t || typeof t !== "object") continue;
+      const turn = t as Record<string, unknown>;
+      const request = turn["request"] as Record<string, unknown> | undefined;
+      const response = turn["response"] as Record<string, unknown> | undefined;
+
+      const reqParts = (request?.["parts"] as unknown[] | undefined) ?? [];
+      const input = reqParts
+        .map((p) => (p && typeof p === "object" ? (p as Record<string, unknown>)["text"] : ""))
+        .filter((t) => typeof t === "string")
+        .join("")
+        .trim();
+
+      const candidates = (response?.["candidates"] as unknown[] | undefined) ?? [];
+      const first = candidates[0] as Record<string, unknown> | undefined;
+      const content = first?.["content"] as Record<string, unknown> | undefined;
+      const resParts = (content?.["parts"] as unknown[] | undefined) ?? [];
+      const output = resParts
+        .map((p) => (p && typeof p === "object" ? (p as Record<string, unknown>)["text"] : ""))
+        .filter((t) => typeof t === "string")
+        .join("")
+        .trim();
+
+      if (input && output) {
+        turns.push({ input, output, model: "gemini" });
+      }
+    }
+
+    if (turns.length > 0) {
+      results.push({ title, description: "Imported from Gemini", tags: ["imported", "gemini"], turns });
+    }
+  }
+
+  return results;
 }

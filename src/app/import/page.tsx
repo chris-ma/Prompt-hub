@@ -12,13 +12,16 @@ function formatBytes(bytes: number): string {
 function detectFormat(filename: string, content: string): string {
   if (filename.endsWith(".txt")) return "Text file";
   if (filename.endsWith(".md")) return "Markdown file";
+  if (filename.endsWith(".zip")) return "Export ZIP";
   if (filename.endsWith(".json")) {
     try {
       const raw = JSON.parse(content) as unknown[];
       if (!Array.isArray(raw) || raw.length === 0) return "JSON (unknown format)";
       const first = raw[0] as Record<string, unknown>;
-      if ("mapping" in first) return "ChatGPT export";
-      if ("chat_messages" in first) return "Claude.ai export";
+      if ("mapping" in first) return "ChatGPT conversations";
+      if ("chat_messages" in first) return "Claude.ai conversations";
+      if ("conversationState" in first) return "Gemini conversations";
+      if ("memory" in first) return "ChatGPT memories";
       return "JSON (unknown format)";
     } catch {
       return "Invalid JSON";
@@ -40,9 +43,13 @@ export default function ImportPage() {
     setFile(f);
     setResult(null);
     setError(null);
-    const reader = new FileReader();
-    reader.onload = (e) => setFileContent(e.target?.result as string ?? "");
-    reader.readAsText(f);
+    if (f.name.endsWith(".zip")) {
+      setFileContent("__zip__");
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => setFileContent(e.target?.result as string ?? "");
+      reader.readAsText(f);
+    }
   }, []);
 
   function handleDrop(e: React.DragEvent) {
@@ -86,10 +93,30 @@ export default function ImportPage() {
 
       <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-gray-700">Supported formats</h2>
-        <ul className="flex flex-col gap-1 text-sm text-gray-600">
-          <li><span className="font-mono text-xs bg-gray-100 px-1 rounded">conversations.json</span> — ChatGPT export (Settings → Data controls → Export)</li>
-          <li><span className="font-mono text-xs bg-gray-100 px-1 rounded">conversations.json</span> — Claude.ai export (Settings → Privacy → Export data)</li>
-          <li><span className="font-mono text-xs bg-gray-100 px-1 rounded">.txt / .md</span> — Notes or prompt files (saved as a prompt template)</li>
+        <ul className="flex flex-col gap-2 text-sm text-gray-600">
+          <li>
+            <span className="font-semibold text-gray-700">ChatGPT</span>{" "}
+            <span className="font-mono text-xs bg-gray-100 px-1 rounded">.zip</span>
+            {" "}— Settings → Data controls → Export data. Imports conversations + memories.
+          </li>
+          <li>
+            <span className="font-semibold text-gray-700">Claude.ai</span>{" "}
+            <span className="font-mono text-xs bg-gray-100 px-1 rounded">.zip</span>
+            {" "}— Settings → Privacy → Export data. Imports all conversations.
+          </li>
+          <li>
+            <span className="font-semibold text-gray-700">Gemini</span>{" "}
+            <span className="font-mono text-xs bg-gray-100 px-1 rounded">.zip</span>
+            {" "}— Google Takeout → select "Gemini Apps" only. Imports conversations.
+          </li>
+          <li>
+            <span className="font-semibold text-gray-700">Notes / prompts</span>{" "}
+            <span className="font-mono text-xs bg-gray-100 px-1 rounded">.txt / .md</span>
+            {" "}— Saved as a prompt template.
+          </li>
+          <li className="text-gray-400 text-xs pt-1">
+            Perplexity, Grok: no official export — copy-paste conversations into a .txt file and upload it.
+          </li>
         </ul>
       </div>
 
@@ -105,7 +132,7 @@ export default function ImportPage() {
         <input
           ref={inputRef}
           type="file"
-          accept=".json,.txt,.md"
+          accept=".zip,.json,.txt,.md"
           className="hidden"
           onChange={(e) => {
             const f = e.target.files?.[0];
@@ -115,7 +142,7 @@ export default function ImportPage() {
         <div className="text-3xl text-gray-400">↑</div>
         <div className="text-center">
           <p className="text-sm font-medium text-gray-700">Drop a file here or click to browse</p>
-          <p className="text-xs text-gray-400 mt-1">JSON, TXT, MD — max 10 MB</p>
+          <p className="text-xs text-gray-400 mt-1">ZIP, JSON, TXT, MD — max 10 MB</p>
         </div>
       </div>
 
