@@ -25,22 +25,16 @@ export default async function PromptsPage({ searchParams }: PromptsPageProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">All Prompts</h1>
-        <Link
-          href="/prompts/create"
-          className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors sm:w-auto"
-        >
-          New Prompt
-        </Link>
-      </div>
+      <h1 className="text-2xl font-bold text-[#2d1a19]">All Prompts</h1>
 
       {allTags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           <Link
             href="/prompts"
             className={`rounded-full px-3 py-1 text-sm transition-colors ${
-              !tag ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              !tag
+                ? "bg-[#c47068] text-white"
+                : "bg-[#fce8e6] text-[#9e5a54] hover:bg-[#f7ddd7]"
             }`}
           >
             All
@@ -51,8 +45,8 @@ export default async function PromptsPage({ searchParams }: PromptsPageProps) {
               href={`/prompts?tag=${encodeURIComponent(t)}`}
               className={`rounded-full px-3 py-1 text-sm transition-colors ${
                 tag === t
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#c47068] text-white"
+                  : "bg-[#fce8e6] text-[#9e5a54] hover:bg-[#f7ddd7]"
               }`}
             >
               {t}
@@ -62,7 +56,7 @@ export default async function PromptsPage({ searchParams }: PromptsPageProps) {
       )}
 
       {filtered.length === 0 ? (
-        <p className="text-center text-gray-400 py-12">No prompts match your filter.</p>
+        <p className="text-center text-[#c4a8a5] py-12">No prompts match your filter.</p>
       ) : (
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((prompt) => (

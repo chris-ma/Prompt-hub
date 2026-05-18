@@ -85,36 +85,36 @@ export default function ImportPage() {
   return (
     <div className="mx-auto max-w-2xl flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Import Conversations</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-[#2d1a19]">Import Conversations</h1>
+        <p className="mt-1 text-sm text-[#9e7b78]">
           Import your existing conversations from ChatGPT, Claude.ai, or notes files. Each conversation becomes a prompt with its full run history.
         </p>
       </div>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">Supported formats</h2>
-        <ul className="flex flex-col gap-2 text-sm text-gray-600">
+      <div className="flex flex-col gap-4 rounded-xl border border-[#f0d9d5] bg-white p-4">
+        <h2 className="text-sm font-semibold text-[#6b4a48]">Supported formats</h2>
+        <ul className="flex flex-col gap-2 text-sm text-[#9e7b78]">
           <li>
-            <span className="font-semibold text-gray-700">ChatGPT</span>{" "}
-            <span className="font-mono text-xs bg-gray-100 px-1 rounded">.zip</span>
+            <span className="font-semibold text-[#6b4a48]">ChatGPT</span>{" "}
+            <span className="font-mono text-xs bg-[#fce8e6] px-1 rounded">.zip</span>
             {" "}— Settings → Data controls → Export data. Imports conversations + memories.
           </li>
           <li>
-            <span className="font-semibold text-gray-700">Claude.ai</span>{" "}
-            <span className="font-mono text-xs bg-gray-100 px-1 rounded">.zip</span>
+            <span className="font-semibold text-[#6b4a48]">Claude.ai</span>{" "}
+            <span className="font-mono text-xs bg-[#fce8e6] px-1 rounded">.zip</span>
             {" "}— Settings → Privacy → Export data. Imports all conversations.
           </li>
           <li>
-            <span className="font-semibold text-gray-700">Gemini</span>{" "}
-            <span className="font-mono text-xs bg-gray-100 px-1 rounded">.zip</span>
+            <span className="font-semibold text-[#6b4a48]">Gemini</span>{" "}
+            <span className="font-mono text-xs bg-[#fce8e6] px-1 rounded">.zip</span>
             {" "}— Google Takeout → select "Gemini Apps" only. Imports conversations.
           </li>
           <li>
-            <span className="font-semibold text-gray-700">Notes / prompts</span>{" "}
-            <span className="font-mono text-xs bg-gray-100 px-1 rounded">.txt / .md</span>
+            <span className="font-semibold text-[#6b4a48]">Notes / prompts</span>{" "}
+            <span className="font-mono text-xs bg-[#fce8e6] px-1 rounded">.txt / .md</span>
             {" "}— Saved as a prompt template.
           </li>
-          <li className="text-gray-400 text-xs pt-1">
+          <li className="text-[#c4a8a5] text-xs pt-1">
             Perplexity, Grok: no official export — copy-paste conversations into a .txt file and upload it.
           </li>
         </ul>
@@ -126,7 +126,7 @@ export default function ImportPage() {
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
         className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-12 cursor-pointer transition-colors ${
-          isDragging ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+          isDragging ? "border-[#c47068] bg-[#fce8e6]" : "border-[#f0d9d5] hover:border-[#d4a09a] hover:bg-[#fdf5f3]"
         }`}
       >
         <input
@@ -139,31 +139,31 @@ export default function ImportPage() {
             if (f) handleFile(f);
           }}
         />
-        <div className="text-3xl text-gray-400">↑</div>
+        <div className="text-3xl text-[#c4a8a5]">↑</div>
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-700">Drop a file here or click to browse</p>
-          <p className="text-xs text-gray-400 mt-1">ZIP, JSON, TXT, MD — max 10 MB</p>
+          <p className="text-sm font-medium text-[#6b4a48]">Drop a file here or click to browse</p>
+          <p className="text-xs text-[#c4a8a5] mt-1">ZIP, JSON, TXT, MD — max 10 MB</p>
         </div>
       </div>
 
       {file && (
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="flex flex-col gap-3 rounded-xl border border-[#f0d9d5] bg-white p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex flex-col min-w-0">
-              <span className="text-sm font-medium text-gray-900 truncate">{file.name}</span>
+              <span className="text-sm font-medium text-[#2d1a19] truncate">{file.name}</span>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-xs text-gray-400">{formatBytes(file.size)}</span>
+                <span className="text-xs text-[#c4a8a5]">{formatBytes(file.size)}</span>
                 {detectedFormat && (
                   <>
-                    <span className="text-xs text-gray-300">·</span>
-                    <span className="text-xs font-medium text-blue-600">{detectedFormat}</span>
+                    <span className="text-xs text-[#f0d9d5]">·</span>
+                    <span className="text-xs font-medium text-[#c47068]">{detectedFormat}</span>
                   </>
                 )}
               </div>
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); setFile(null); setFileContent(""); setResult(null); }}
-              className="shrink-0 text-xs text-gray-400 hover:text-gray-600"
+              className="shrink-0 text-xs text-[#c4a8a5] hover:text-[#9e7b78]"
             >
               Clear
             </button>
@@ -174,7 +174,7 @@ export default function ImportPage() {
           <button
             onClick={handleImport}
             disabled={isImporting}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full rounded-xl bg-[#c47068] py-2.5 text-sm font-semibold text-white hover:bg-[#a85a55] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isImporting ? "Importing…" : "Import"}
           </button>
@@ -182,7 +182,7 @@ export default function ImportPage() {
       )}
 
       {result && (
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="flex flex-col gap-3 rounded-xl border border-[#f0d9d5] bg-white p-4">
           {result.imported > 0 && (
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-green-700">
@@ -190,7 +190,7 @@ export default function ImportPage() {
               </p>
               <Link
                 href="/prompts"
-                className="shrink-0 rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                className="shrink-0 rounded-xl bg-[#c47068] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#a85a55] transition-colors"
               >
                 View prompts →
               </Link>

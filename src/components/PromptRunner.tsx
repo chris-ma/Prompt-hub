@@ -66,7 +66,7 @@ export default function PromptRunner({ prompt, models }: PromptRunnerProps) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <label htmlFor="runner-input" className="text-sm font-medium text-gray-700">
+        <label htmlFor="runner-input" className="text-sm font-medium text-[#6b4a48]">
           Your input
         </label>
         <textarea
@@ -75,16 +75,16 @@ export default function PromptRunner({ prompt, models }: PromptRunnerProps) {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter your input here..."
           rows={4}
-          className="w-full rounded-lg border border-gray-300 p-3 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-y"
+          className="w-full rounded-xl border border-[#f0d9d5] bg-white p-3 text-sm text-[#2d1a19] placeholder-[#c4a8a5] focus:border-[#c47068] focus:outline-none focus:ring-1 focus:ring-[#c47068] resize-y"
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-gray-700">Select models</span>
+        <span className="text-sm font-medium text-[#6b4a48]">Select models</span>
         {models.length === 0 ? (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-[#9e7b78]">
             No models configured.{" "}
-            <a href="/settings/models" className="text-blue-600 underline">
+            <a href="/settings/models" className="text-[#c47068] underline">
               Add some in Settings.
             </a>
           </p>
@@ -93,10 +93,10 @@ export default function PromptRunner({ prompt, models }: PromptRunnerProps) {
             {models.map((model) => (
               <label
                 key={model.id}
-                className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors ${
                   selectedModels.includes(model.modelId)
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    ? "border-[#c47068] bg-[#fce8e6] text-[#9e5a54]"
+                    : "border-[#f0d9d5] bg-white text-[#9e7b78] hover:border-[#e8b4ae]"
                 }`}
               >
                 <input
@@ -115,7 +115,7 @@ export default function PromptRunner({ prompt, models }: PromptRunnerProps) {
       <button
         onClick={handleRun}
         disabled={isLoading || !input.trim() || selectedModels.length === 0}
-        className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:w-auto md:self-start"
+        className="w-full rounded-xl bg-[#c47068] px-4 py-3 text-sm font-semibold text-white hover:bg-[#a85a55] disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:w-auto md:self-start"
       >
         {isLoading
           ? "Running..."
@@ -123,14 +123,14 @@ export default function PromptRunner({ prompt, models }: PromptRunnerProps) {
       </button>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {outputs.length > 0 && (
         <div className="flex flex-col gap-4">
-          <h3 className="text-base font-semibold text-gray-900">Results</h3>
+          <h3 className="text-base font-semibold text-[#2d1a19]">Results</h3>
           <div
             className={`grid gap-4 ${
               outputs.length === 1 ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
@@ -139,22 +139,22 @@ export default function PromptRunner({ prompt, models }: PromptRunnerProps) {
             {outputs.map((output) => (
               <div
                 key={output.model}
-                className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4"
+                className="flex flex-col gap-2 rounded-2xl border border-[#f0d9d5] bg-white p-4"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-[#c4a8a5]">
                     {labelFor(output.model)}
                   </span>
                   <div className="flex items-center gap-2">
                     {output.usage && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-[#c4a8a5]">
                         {output.usage.prompt_tokens + output.usage.completion_tokens} tokens
                       </span>
                     )}
                     {!output.error && (
                       <button
                         onClick={() => handleCopy(output.model, output.content)}
-                        className="rounded px-2 py-0.5 text-xs font-medium transition-colors border border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700 active:bg-gray-100"
+                        className="rounded-full px-2 py-0.5 text-xs font-medium transition-colors border border-[#f0d9d5] text-[#9e7b78] hover:border-[#c47068] hover:text-[#c47068] active:bg-[#fce8e6]"
                       >
                         {copiedModel === output.model ? "Copied!" : "Copy"}
                       </button>
@@ -164,7 +164,7 @@ export default function PromptRunner({ prompt, models }: PromptRunnerProps) {
                 {output.error ? (
                   <p className="text-sm text-red-600">{output.error}</p>
                 ) : (
-                  <p className="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed">
+                  <p className="whitespace-pre-wrap text-sm text-[#2d1a19] leading-relaxed">
                     {output.content}
                   </p>
                 )}

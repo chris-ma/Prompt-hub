@@ -71,14 +71,14 @@ export default function ModelsSettingsPage() {
   return (
     <div className="mx-auto max-w-2xl flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">LLM Models</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-[#2d1a19]">LLM Models</h1>
+        <p className="mt-1 text-sm text-[#9e7b78]">
           Configure models to use in the prompt runner. Link each to a provider for direct API access, or leave unlinked to use OpenRouter.
         </p>
       </div>
 
-      <form onSubmit={handleAdd} className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">Add a model</h2>
+      <form onSubmit={handleAdd} className="flex flex-col gap-3 rounded-xl border border-[#f0d9d5] bg-white p-4">
+        <h2 className="text-sm font-semibold text-[#6b4a48]">Add a model</h2>
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
@@ -86,20 +86,20 @@ export default function ModelsSettingsPage() {
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder="Display name (e.g. GPT-4o)"
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex-1 rounded-xl border border-[#f0d9d5] px-3 py-2 text-sm focus:border-[#c47068] focus:outline-none focus:ring-1 focus:ring-[#c47068]"
             />
             <input
               type="text"
               value={modelId}
               onChange={(e) => setModelId(e.target.value)}
               placeholder="Model ID (e.g. gpt-4o)"
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex-1 rounded-xl border border-[#f0d9d5] px-3 py-2 font-mono text-sm focus:border-[#c47068] focus:outline-none focus:ring-1 focus:ring-[#c47068]"
             />
           </div>
           <select
             value={providerId}
             onChange={(e) => setProviderId(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="rounded-xl border border-[#f0d9d5] px-3 py-2 text-sm focus:border-[#c47068] focus:outline-none focus:ring-1 focus:ring-[#c47068]"
           >
             <option value="">No provider (use OpenRouter fallback)</option>
             {providers.map((p) => (
@@ -111,36 +111,36 @@ export default function ModelsSettingsPage() {
         <button
           type="submit"
           disabled={isAdding || !modelId.trim() || !label.trim()}
-          className="w-full rounded-lg bg-blue-600 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors sm:w-auto sm:self-end sm:px-6"
+          className="w-full rounded-xl bg-[#c47068] py-2 text-sm font-semibold text-white hover:bg-[#a85a55] disabled:opacity-50 disabled:cursor-not-allowed transition-colors sm:w-auto sm:self-end sm:px-6"
         >
           {isAdding ? "Adding..." : "Add"}
         </button>
       </form>
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold text-gray-700">Configured models ({models.length})</h2>
+        <h2 className="text-sm font-semibold text-[#6b4a48]">Configured models ({models.length})</h2>
         {isLoading ? (
-          <p className="text-sm text-gray-400 py-4 text-center">Loading...</p>
+          <p className="text-sm text-[#c4a8a5] py-4 text-center">Loading...</p>
         ) : models.length === 0 ? (
-          <p className="text-sm text-gray-400 py-4 text-center">No models configured yet.</p>
+          <p className="text-sm text-[#c4a8a5] py-4 text-center">No models configured yet.</p>
         ) : (
-          <div className="flex flex-col divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white overflow-hidden">
+          <div className="flex flex-col divide-y divide-[#f0d9d5] rounded-xl border border-[#f0d9d5] bg-white overflow-hidden">
             {models.map((model) => (
               <div key={model.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900 truncate">{model.label}</span>
+                    <span className="text-sm font-medium text-[#2d1a19] truncate">{model.label}</span>
                     {model.provider && (
-                      <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                      <span className="shrink-0 rounded-full bg-[#fce8e6] px-2 py-0.5 text-xs font-medium text-[#9e5a54]">
                         {model.provider.slug}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs font-mono text-gray-400 truncate">{model.modelId}</span>
+                  <span className="text-xs font-mono text-[#c4a8a5] truncate">{model.modelId}</span>
                 </div>
                 <button
                   onClick={() => handleDelete(model.id)}
-                  className="shrink-0 rounded-lg border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  className="shrink-0 rounded-xl border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
                 >
                   Remove
                 </button>

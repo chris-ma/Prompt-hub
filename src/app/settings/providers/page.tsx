@@ -73,20 +73,20 @@ export default function ProvidersSettingsPage() {
   return (
     <div className="mx-auto max-w-2xl flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">API Providers</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-[#2d1a19]">API Providers</h1>
+        <p className="mt-1 text-sm text-[#9e7b78]">
           Connect your own LLM provider accounts. API keys are stored securely and never exposed to the browser.
         </p>
       </div>
 
-      <form onSubmit={handleAdd} className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">Add a provider</h2>
+      <form onSubmit={handleAdd} className="flex flex-col gap-3 rounded-xl border border-[#f0d9d5] bg-white p-4">
+        <h2 className="text-sm font-semibold text-[#6b4a48]">Add a provider</h2>
 
         <div className="flex flex-col gap-2">
           <select
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="rounded-xl border border-[#f0d9d5] px-3 py-2 text-sm focus:border-[#c47068] focus:outline-none focus:ring-1 focus:ring-[#c47068]"
           >
             {PROVIDER_OPTIONS.map((p) => (
               <option key={p.slug} value={p.slug}>{p.name}</option>
@@ -99,7 +99,7 @@ export default function ProvidersSettingsPage() {
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="API key"
             autoComplete="off"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="rounded-xl border border-[#f0d9d5] px-3 py-2 text-sm font-mono focus:border-[#c47068] focus:outline-none focus:ring-1 focus:ring-[#c47068]"
           />
 
           <input
@@ -107,7 +107,7 @@ export default function ProvidersSettingsPage() {
             value={baseUrl}
             onChange={(e) => setBaseUrl(e.target.value)}
             placeholder="Custom base URL (optional — leave blank for default)"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="rounded-xl border border-[#f0d9d5] px-3 py-2 text-sm font-mono focus:border-[#c47068] focus:outline-none focus:ring-1 focus:ring-[#c47068]"
           />
         </div>
 
@@ -116,32 +116,32 @@ export default function ProvidersSettingsPage() {
         <button
           type="submit"
           disabled={isAdding || !apiKey.trim()}
-          className="w-full rounded-lg bg-blue-600 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors sm:w-auto sm:self-end sm:px-6"
+          className="w-full rounded-xl bg-[#c47068] py-2 text-sm font-semibold text-white hover:bg-[#a85a55] disabled:opacity-50 disabled:cursor-not-allowed transition-colors sm:w-auto sm:self-end sm:px-6"
         >
           {isAdding ? "Adding..." : "Add Provider"}
         </button>
       </form>
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold text-gray-700">Connected providers ({providers.length})</h2>
+        <h2 className="text-sm font-semibold text-[#6b4a48]">Connected providers ({providers.length})</h2>
         {isLoading ? (
-          <p className="text-sm text-gray-400 py-4 text-center">Loading...</p>
+          <p className="text-sm text-[#c4a8a5] py-4 text-center">Loading...</p>
         ) : providers.length === 0 ? (
-          <p className="text-sm text-gray-400 py-4 text-center">No providers connected yet.</p>
+          <p className="text-sm text-[#c4a8a5] py-4 text-center">No providers connected yet.</p>
         ) : (
-          <div className="flex flex-col divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white overflow-hidden">
+          <div className="flex flex-col divide-y divide-[#f0d9d5] rounded-xl border border-[#f0d9d5] bg-white overflow-hidden">
             {providers.map((provider) => (
               <div key={provider.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-medium text-gray-900">{provider.name}</span>
-                  <span className="text-xs font-mono text-gray-400">{provider.slug}</span>
+                  <span className="text-sm font-medium text-[#2d1a19]">{provider.name}</span>
+                  <span className="text-xs font-mono text-[#c4a8a5]">{provider.slug}</span>
                   {provider.baseUrl && (
-                    <span className="text-xs text-gray-400 truncate">{provider.baseUrl}</span>
+                    <span className="text-xs text-[#c4a8a5] truncate">{provider.baseUrl}</span>
                   )}
                 </div>
                 <button
                   onClick={() => handleDelete(provider.id)}
-                  className="shrink-0 rounded-lg border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  className="shrink-0 rounded-xl border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
                 >
                   Remove
                 </button>
